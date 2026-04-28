@@ -3,36 +3,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileRepository {
-    private final String filePath;
+    private final String path;
 
-    public FileRepository(String filePath) {
-        this.filePath = filePath;
-    }
+    public FileRepository(String path) { this.path = path; }
 
     public Map<String, String> load() {
         Map<String, String> data = new HashMap<>();
-        File file = new File(filePath);
+        File file = new File(path);
         if (!file.exists()) return data;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 String[] parts = line.split("=");
                 if (parts.length == 2) data.put(parts[0], parts[1]);
             }
-        } catch (IOException e) {
-            System.err.println("Ошибка при чтении файла: " + e.getMessage());
-        }
+        } catch (IOException e) { System.out.println("Ошибка чтения"); }
         return data;
     }
 
     public void save(Map<String, String> data) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
-            for (Map.Entry<String, String> entry : data.entrySet()) {
-                writer.println(entry.getKey() + "=" + entry.getValue());
-            }
-        } catch (IOException e) {
-            System.err.println("Ошибка при сохранении: " + e.getMessage());
-        }
+        try (PrintWriter pw = new PrintWriter(new FileWriter(path))) {
+            data.forEach((k, v) -> pw.println(k + "=" + v));
+        } catch (IOException e) { System.out.println("Ошибка записи"); }
     }
 }
